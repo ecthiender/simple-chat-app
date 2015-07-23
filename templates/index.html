@@ -1,0 +1,43 @@
+<!doctype html>
+<html>
+  <head>
+    <title> Banana Chat </title>
+    <link href="static/css/main.css" rel="stylesheet"/>
+  </head>
+  <body>
+    <div id="container">
+      <h1> Banana Chat </h1>
+      <!-- The HUD -->
+      <div id="hud">
+        <span id="status-hud">
+          <b>Status: </b> <span id="status"></span>
+        </span>
+        <span id="nick-hud">
+          <b>Online as:</b> <span id="disp-nick"></span>
+        </span>
+      </div>
+
+      <!-- the form to get nick details -->
+      <div id="nick-wrapper">
+        <p>
+          <b> <i> Enter your nick to start chatting! </i></b>
+        </p>
+        Please enter your nick: <input type="text" id="nick">
+        <button id="save-nick">Save</button>
+      </div>
+
+      <!-- chat related form -->
+      <div id="chat">
+        <div id="chat-box"></div>
+        <input type="text" id="chat-enter" placeholder="Type to chat and press enter..">
+        <button id="send">Send</button>
+      </div>
+      <div id="user-list">
+        <b> Currently online users:</b>
+        <div id="online-users"></div>
+      </div>
+    </div>
+
+    <script src="static/js/main.js" type="text/javascript"></script>
+  </body>
+</html>
