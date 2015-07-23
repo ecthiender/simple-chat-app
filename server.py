@@ -20,15 +20,22 @@ class WebPageHandler(tornado.web.RequestHandler):
 
 
 class ChatServer(tornado.websocket.WebSocketHandler):
+
+    # get the current client dict from connected_clients list
+    def get_current_client(self):
+        return filter(lambda x: x['obj'] is self, connected_clients)[0]
+
     def open(self):
-        print("Websocket opened")
-        nick = 'new user ' + str(len(connected_clients) + 1)
-        connected_clients.append({'nick': nick, 'obj': self})
+        print("New client connected")
+        # nick = 'new user ' + str(len(connected_clients) + 1)
+        connected_clients.append({'nick': None, 'obj': self})
         self.send_online_users()
 
     def on_close(self):
-        print("Websocket closed")
-        client = filter(lambda x: x['obj'] is self, connected_clients)[0]
+        print("Client disconnected")
+        # client disconnected..remove the client from the existing list of
+        # connected clients..
+        client = self.get_current_client()
         connected_clients.remove(client)
         self.send_online_users()
 
@@ -36,20 +43,28 @@ class ChatServer(tornado.websocket.WebSocketHandler):
         print "Message recvd from client : %s" % (data)
         payload = json.loads(data)
         if payload['type'] == 'chat':
-            for client in connected_clients:
-                if client['obj'] is not self:
-                    client['obj'].write_message(data)
+            self.broadcast_from_client(payload)
         if payload['type'] == 'nick':
-            client = filter(lambda x: x['obj'] is self, connected_clients)[0]
-            print client
-            client['nick'] = payload['nick']
+            self.set_client_nick(payload)
             self.send_online_users()
+
+    def set_client_nick(self, data):
+        client = self.get_current_client()
+        client['nick'] = data['nick']
 
     def send_online_users(self):
         payload = {'type': 'user-info',
                    'users': [client['nick'] for client in connected_clients]}
+        self.broadcast_from_server(payload)
+
+    def broadcast_from_client(self, message):
         for client in connected_clients:
-            client['obj'].write_message(payload)
+            if client['obj'] is not self:
+                client['obj'].write_message(message)
+
+    def broadcast_from_server(self, message):
+        for client in connected_clients:
+            client['obj'].write_message(message)
 
 
 if __name__ == "__main__":
